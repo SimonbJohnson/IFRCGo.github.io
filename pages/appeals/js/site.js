@@ -1,10 +1,29 @@
-function generateKeyFigs(data){
+function generateKeyFigs(data,override){
 	$('.appeal_name').html(data['#crisis+name']);
-	var coverage = parseInt(data['#meta+coverage'].substring(-1))*0.01;
-	createPie('#coverage',220,40,coverage);
 	$('#beneficiaries').append('<p class="keyfigure">'+niceFormatNumber(data['#targeted'])+'</p>');
-	$('#funding').append('<p class="keyfigure">'+niceFormatNumber(data['#meta+funding'])+' (CHF)</p>');
-	$('#appeal_amount').append('<p class="keyfigure">'+niceFormatNumber(data['#meta+value'])+' (CHF)</p>');
+	console.log(override);
+	if(!override){
+		var coverage = parseInt(data['#meta+coverage'].substring(-1))*0.01;
+		createPie('#coverage',220,40,coverage,0);
+		$('#funding').append('<p class="keyfigure">'+niceFormatNumber(data['#meta+funding'])+' (CHF)</p>');
+		$('#appeal_amount').append('<p class="keyfigure">'+niceFormatNumber(data['#meta+value'])+' (CHF)</p>');	
+	} else {
+		var soft = 1;
+		var hard = 1;
+
+		override.forEach(function(d){
+			console.log(d);
+			if(d['#meta+key']=='soft plus hard funding'){soft = d['#meta+value']}
+			if(d['#meta+key']=='hard funding'){hard = d['#meta+value']}
+		});
+		console.log(hard);
+		console.log(soft);
+		var hardcoverage = parseInt(hard)/parseInt(data['#meta+value']);
+		var softcoverage = parseInt(soft)/parseInt(data['#meta+value']);
+		createPie('#coverage',220,40,hardcoverage,softcoverage);
+		$('#funding').append('<p class="keyfigure">'+niceFormatNumber(hard)+' (CHF)</p>');
+		$('#appeal_amount').append('<p class="keyfigure">'+niceFormatNumber(data['#meta+value'])+' (CHF)</p>');	
+	}
 }
 
 function generateMap(geom,ISO3){
@@ -67,43 +86,70 @@ function processHash(){
 	    url: '/data/worldmap.json', 
 	    dataType: 'json'
 	});
+	var url = 'https://beta.proxy.hxlstandard.org/data.json?filter01=select&select-query01-01=%23meta%2Bid%3D'+appealid+'&url=https%3A//docs.google.com/spreadsheets/d/1rJ5gt-JaburVcfzTeNmLglEWfhTlEuoaOedTH5T7Qek/edit%3Fusp%3Dsharing&strip-headers=on';
+
+	var plusCall = $.ajax({
+		type: 'GET', 
+    	url: url,
+    	dataType: 'json',
+	});
 
 	getAppealDocs(appealid);
-	appealsplus(appealid);
+
+	$.when(plusCall).then(function(plusArgs){
+		appealsplus(plusArgs);
+	});
+
+	$.when(plusCall,dataCall).then(function(plusArgs, dataArgs){
+		var data = hxlProxyToJSON(dataArgs[0]);
+		var plusdata = hxlProxyToJSON(plusArgs[0]);
+		var override = false;
+		var hxlurl = '';
+		plusdata.forEach(function(d){
+			if(d['#meta+feature']=='override'){
+				hxlurl = 'https://beta.proxy.hxlstandard.org/data.json?strip-headers=on&url='+encodeURIComponent(d['#meta+url']);
+				override = true;
+			}
+		});
+		if(override){
+			$.ajax({
+			    type: 'GET', 
+	    		url: hxlurl,
+	    		dataType: 'json',
+				success: function(result){
+					var overridedata = hxlProxyToJSON(result);
+					generateKeyFigs(data[0],overridedata);
+	    		}
+    		});
+		} else {
+			generateKeyFigs(data[0]);
+		}
+		
+	});
 
 	$.when(dataCall, geomCall).then(function(dataArgs, geomArgs){
 	    var data = hxlProxyToJSON(dataArgs[0]);
-	    console.log(data);
 	    var geom = topojson.feature(geomArgs[0],geomArgs[0].objects.geom);
-	    generateKeyFigs(data[0]);
 	    generateMap(geom,data[0]['#country+code']);
 	});
 }
 
-function appealsplus(id){
-	var url = 'https://beta.proxy.hxlstandard.org/data.json?filter01=select&select-query01-01=%23meta%2Bid%3D'+id+'&url=https%3A//docs.google.com/spreadsheets/d/1rJ5gt-JaburVcfzTeNmLglEWfhTlEuoaOedTH5T7Qek/edit%3Fusp%3Dsharing&strip-headers=on';
-	$.ajax({
-		    type: 'GET', 
-    		url: url,
-    		dataType: 'json',
-			success: function(result){
-				var data = hxlProxyToJSON(result);
-				data.forEach(function(d){
-					if(d['#meta+feature']=='keyfigures'){
-						loadKeyFigures(encodeURIComponent(d['#meta+url']));
-					}
-					if(d['#meta+feature']=='contacts'){
-						loadContacts(encodeURIComponent(d['#meta+url']));
-					}
-					if(d['#meta+feature']=='links'){
-						loadLinks(encodeURIComponent(d['#meta+url']));
-					}
-					if(d['#meta+feature']=='freetext'){
-						loadFreeText(encodeURIComponent(d['#meta+url']));
-					}
-				});
-    		}
-    });
+function appealsplus(data){
+	var data = hxlProxyToJSON(data);
+	data.forEach(function(d){
+		if(d['#meta+feature']=='keyfigures'){
+			loadKeyFigures(encodeURIComponent(d['#meta+url']));
+		}
+		if(d['#meta+feature']=='contacts'){
+			loadContacts(encodeURIComponent(d['#meta+url']));
+		}
+		if(d['#meta+feature']=='links'){
+			loadLinks(encodeURIComponent(d['#meta+url']));
+		}
+		if(d['#meta+feature']=='freetext'){
+			loadFreeText(encodeURIComponent(d['#meta+url']));
+		}
+	});
 }
 
 function loadKeyFigures(url){
@@ -223,13 +269,19 @@ function getAppealDocs(id){
 }
 
 
-function createPie(id,width,inner,percent){
+function createPie(id,width,inner,percent,percentsoft){
 	
 	var svg = d3.select(id).append("svg")
 		.attr("width", width)
 		.attr("height", width);
 
 	var radius = width/2;
+
+	var softArc = d3.svg.arc()
+		.innerRadius(radius-inner)
+		.outerRadius(radius)
+		.startAngle(0)
+		.endAngle(Math.PI*2*percentsoft);	
 
 	var fundingArc = d3.svg.arc()
 		.innerRadius(radius-inner)
@@ -249,16 +301,37 @@ function createPie(id,width,inner,percent){
 		.attr("transform", "translate("+(width/2)+","+(width/2)+")");
 
 	svg.append("path")
+		.style("fill", "#E57373")
+		.attr("d", softArc)
+		.attr("transform", "translate("+(width/2)+","+(width/2)+")");		
+
+	svg.append("path")
 		.style("fill", "#b71c1c")
 		.attr("d", fundingArc)
 		.attr("transform", "translate("+(width/2)+","+(width/2)+")");
+	if(percentsoft>0){
+		svg.append("text")
+			.attr("x",width/2)
+			.attr("y",width/2-10)
+			.text('Hard: '+d3.format(".0%")(percent))
+			.style("text-anchor", "middle")
+			.attr("class","keyfiguresmall");
 
-	svg.append("text")
-		.attr("x",width/2)
-		.attr("y",width/2+10)
-		.text(d3.format(".0%")(percent))
-		.style("text-anchor", "middle")
-		.attr("class","keyfigure");
+		svg.append("text")
+			.attr("x",width/2)
+			.attr("y",width/2+20)
+			.text('Soft: '+d3.format(".0%")(percentsoft))
+			.style("text-anchor", "middle")
+			.attr("class","keyfiguresmall");	
+	} else {
+		svg.append("text")
+			.attr("x",width/2)
+			.attr("y",width/2+10)
+			.text(d3.format(".0%")(percent))
+			.style("text-anchor", "middle")
+			.attr("class","keyfigure");		
+	}
+
 }
 
 function niceFormatNumber(num,round){
