@@ -1,7 +1,7 @@
 var colors = ['#D33F49'];
 
 $.ajax({
-	url:'https://proxy.hxlstandard.org/data.json?url=https%3A//docs.google.com/spreadsheets/d/1mF8R8dLHSlN3574RO2EmOHLns-pPLS3wzpBxle5aIDw/edit%3Fusp%3Dsharing&strip-headers=on',
+	url:'https://beta.proxy.hxlstandard.org/data.json?url=https%3A//docs.google.com/spreadsheets/d/1mF8R8dLHSlN3574RO2EmOHLns-pPLS3wzpBxle5aIDw/edit%3Fusp%3Dsharing&strip-headers=on',
 	dataType: 'json',
     success: function(data) {
     	initGrid(data);
