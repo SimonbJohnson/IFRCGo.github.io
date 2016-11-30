@@ -52,7 +52,7 @@ function generateGrid(data){
 		d.tags.forEach(function(tag){
 			classes += ' '+tag.replace(/ /g, '_').toLowerCase();
 		});
-		var html = '<div id="grid'+i+'" class="'+classes+'"><div class="inner"><h3 class="grid-title">'+d['#meta+title']+'</h3><div id="overlay'+i+'" class="overlay">';
+		var html = '<div id="grid'+i+'" class="'+classes+'"><div class="inner"><h3 class="grid-title">- '+d['#meta+title']+'</h3><div id="overlay'+i+'" class="overlay">';
 		html+='<p class="overlaydesc">'+d['#meta+description']+'</p>';
 		html +='</div></div></div>';
 
