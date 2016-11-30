@@ -22,7 +22,7 @@ function processHash(data,regions){
 		var newData = data.filter(function (d) {
 			return d['#region+name']==hash;
 		});
-		update(newData,data,hash);		
+		update(newData,data,hash);
 	}
 }
 
@@ -78,7 +78,7 @@ function updateDownload(region){
 	var url = "https://proxy.hxlstandard.org/data.csv?strip-headers=on&filter03=merge&merge-url03=https%3A//docs.google.com/spreadsheets/d/1rVAE8b3uC_XIqU-eapUGLU7orIzYSUmvlPm9tI0bCbU/edit%23gid%3D0&clean-date-tags01=%23date&filter02=select&merge-keys03=%23meta%2Bid&filter04=replace-map&select-query06-01=%23region%3D999999&filter05=merge&merge-tags03=%23meta%2Bcoverage%2C%23meta%2Bfunding&force=on&merge-keys05=%23country%2Bname&merge-tags05=%23country%2Bcode&filter01=clean&replace-map-url04=https%3A//docs.google.com/spreadsheets/d/1hTE0U3V8x18homc5KxfA7IIrv1Y9F1oulhJt0Z4z3zo/edit%3Fusp%3Dsharing&filter06=select&merge-url05=https%3A//docs.google.com/spreadsheets/d/1GugpfyzridvfezFcDsl6dNlpZDqI8TQJw-Jx52obny8/edit%3Fusp%3Dsharing&select-query02-01=%23date%2Bend%3E2016-09-01&url=https%3A//docs.google.com/spreadsheets/d/19pBx2NpbgcLFeWoJGdCqECT2kw9O9_WmcZ3O41Sj4hU/edit%23gid%3D0"
 	if(region!='All'){
 		url = url.replace('999999',encodeURIComponent(region));
-		$('#regiondownload').html('Download for <a href="'+url+'">'+region+'</a>')		
+		$('#regiondownload').html('Download for <a href="'+url+'">'+region+'</a>')
 	} else {
 		$('#regiondownload').html('');
 	}
@@ -87,11 +87,11 @@ function updateDownload(region){
 
 function getAppealDocs(id){
 	var url = 'https://proxy.hxlstandard.org/data.json?strip-headers=on&select-query01-01=%23meta%2Bid%3D' + id + '&filter02=cut&filter01=select&cut-include-tags02=%23meta%2Bdocumentname%2C%23date%2C%23meta%2Burl&force=on&url=https%3A//docs.google.com/spreadsheets/d/1gJ4N_PYBqtwVuJ10d8zXWxQle_i84vDx5dHNBomYWdU/edit%3Fusp%3Dsharing';
-	
+
 	console.log(url);
 
 	$.ajax({
-		    type: 'GET', 
+		    type: 'GET',
     		url: url,
     		dataType: 'json',
 			success: function(result){
@@ -118,7 +118,12 @@ function updateTable(data){
 	$('#data-table').html("");
 	var html = "";
 	data.forEach(function(d,i){
-		html += '<tr><td class="details-controls" data-id="'+d['#meta+id']+'"></td><td>'+d['#meta+type']+'</td><td>'+d['#crisis+name']+'</td><td>'+d['#region+name']+'</td><td>'+d['#crisis+type']+'</td><td>'+d['#date+start']+'</td><td>'+d['#date+end']+'</td><td>'+niceFormatNumber(d['#targeted'])+'</td><td>'+niceFormatNumber(d['#meta+value'])+'</td><td>'+niceFormatNumber(d['#meta+funding'])+'</td><td id="coverage'+i+'"></td><td><a href="http://www.ifrc.org/en/publications-and-reports/appeals/?ac='+d['#meta+id']+'&at=0&c=&co=&dt=1&f=&re=&t=&ti=&zo=" target="_blank">'+d['#meta+id']+'</a></td></tr>';
+		if(d['#meta+type']=='DREF'){
+			var url = 'http://www.ifrc.org/en/publications-and-reports/appeals/?ac='+d['#meta+id']+'&at=0&c=&co=&dt=1&f=&re=&t=&ti=&zo='
+				} else {
+					var url = 'https://ifrcgo.github.io/pages/appeals/code/#'+d['#meta+id']
+					}
+		html += '<tr><td class="details-controls" data-id="'+d['#meta+id']+'"></td><td>'+d['#meta+type']+'</td><td>'+d['#crisis+name']+'</td><td>'+d['#region+name']+'</td><td>'+d['#crisis+type']+'</td><td>'+d['#date+start']+'</td><td>'+d['#date+end']+'</td><td>'+niceFormatNumber(d['#targeted'])+'</td><td>'+niceFormatNumber(d['#meta+value'])+'</td><td>'+niceFormatNumber(d['#meta+funding'])+'</td><td id="coverage'+i+'"></td><td><a href="'+url+'" target="_blank">'+d['#meta+id']+'</a></td></tr>';
 	});
 	$('#tcontents').html(html);
 	data.forEach(function(d,i){
@@ -216,7 +221,7 @@ function createMap(data,geom){
                 'fillOpacity':fillOpacity,
                 'className':cls
             };
-    }    
+    }
 
 	map.overlay = L.geoJson(geom,{
 		style:style,
@@ -251,7 +256,7 @@ function updateKeyFigures(data){
 }
 
 function createPie(id,width,inner,percent){
-	
+
 	var svg = d3.select(id).append("svg")
 		.attr("width", width)
 		.attr("height", width);
@@ -305,7 +310,7 @@ function niceFormatNumber(num,round){
 	            output = output.slice(0, -1) + ' billion';
 	        } else {
 	            output = ''+d3.format(".3s")(num);
-	        }            
+	        }
 	        return output;
 		}
 	}
@@ -321,7 +326,7 @@ function hxlProxyToJSON(input,headers){
                 var key = parts[0]
                 if(parts.length>1){
                     var atts = parts.splice(1,parts.length);
-                    atts.sort();                    
+                    atts.sort();
                     atts.forEach(function(att){
                         key +='+'+att
                     });
@@ -348,7 +353,7 @@ function dataPrep(data){
 		} else {
 			d['#meta+coverage']=parseInt(d['#meta+coverage'].slice(0, -1));
 			d['#meta+type']='EA';
-		}	
+		}
 		if(isNaN(parseFloat(d['#meta+value']))){
 			console.log("Data Error - #meta+value: "+d['#meta+value']);
 			console.log(d);
@@ -363,7 +368,7 @@ function dataPrep(data){
 			console.log("Data Error - #meta+funding: "+d['#meta+funding']);
 			console.log(d);
 			d['#meta+funding']=0;
-		}				
+		}
 	});
 	return data;
 }
@@ -380,22 +385,22 @@ var mm = today.getMonth()+1;
 var yyyy = today.getFullYear();
 if(dd<10) {
     dd='0'+dd
-} 
+}
 if(mm<10) {
     mm='0'+mm
-} 
+}
 var date = yyyy + '-' + mm + '-' + dd;
 appealsurl = appealsurl.replace('999999',date);
 
-var dataCall = $.ajax({ 
-    type: 'GET', 
-    url: appealsurl, 
+var dataCall = $.ajax({
+    type: 'GET',
+    url: appealsurl,
     dataType: 'json',
 });
 
-var geomCall = $.ajax({ 
-    type: 'GET', 
-    url: '/data/worldmap.json', 
+var geomCall = $.ajax({
+    type: 'GET',
+    url: '/data/worldmap.json',
     dataType: 'json'
 });
 
