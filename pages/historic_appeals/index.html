@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Historic Appeals and DREFs Dashboard</title>
+        <title>Historic Operations Dashboard</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -35,16 +35,16 @@
     <body>
         <div class="container">
             <div class="row">
-                <div class="col-md-12"><a href="/">Home</a> > <b>Historic DREFs and Appeals</b></div>
+                <div class="col-md-12"><a href="/">Home</a> > <b>Historic Operations</b></div>
             </div>
             <div class="row">
                 <div class="col-xs-12">  
-                    <p><h2 id="title">Historic Appeals and DREFs dashboard</h2></p>
+                    <p><h2 id="title">Historic Operations dashboard</h2></p>
                 </div>
             </div>            
             <div class="row">
                 <div class="col-md-8 bottomspacer titledesc">  
-                    <p>A dashboard of DREF data since 1920. Use the charts and map to filter to the subset you are interested in by clicking the fields.   Use the help button for further instructions.</p>
+                    <p>A dashboard of operations data since 1920. Use the charts and map to filter to the subset you are interested in by clicking the fields.   Use the help button for further instructions.</p>
                 </div>
                 <div class="col-md-4">  
                     <a class="large" href="https://proxy.hxlstandard.org/data.csv?replace-map-url01=https%3A//docs.google.com/spreadsheets/d/1hTE0U3V8x18homc5KxfA7IIrv1Y9F1oulhJt0Z4z3zo/edit%23gid%3D0&strip-headers=on&merge-url02=https%3A//docs.google.com/spreadsheets/d/1GugpfyzridvfezFcDsl6dNlpZDqI8TQJw-Jx52obny8/edit&merge-tags02=country%2Bcode&filter02=merge&filter01=replace-map&url=https%3A//docs.google.com/spreadsheets/d/19pBx2NpbgcLFeWoJGdCqECT2kw9O9_WmcZ3O41Sj4hU/edit%23gid%3D0&merge-keys02=country%2Bname">Download Data</a>
@@ -64,14 +64,15 @@
                     Beneficiaries Total: <span class="filter-count"></span>
                 </div>
                 <div id="count-info" class="col-xs-4 headline">
-                    <span class="filter-count count"></span> selected out of <span class="total-count count"></span> DREFs.
+                    <span class="filter-count count"></span> selected out of <span class="total-count count"></span> Operations.
                 </div>                
             </div>
             <div class="row">
                 <div class="col-xs-12">
-                    <h4>Active DREFs</h4>
+                    <h4>Operations</h4>
                     Filter chart by: <a id="lasttwelve" class="filterlink">Last 1 Year</a>
                     <a id="lastsix" class="filterlink">Last 6 months</a>
+                    <a id="filter2017" class="filterlink">2017</a>
                     <a id="filter2016" class="filterlink">2016</a>
                     <a id="filter2015" class="filterlink">2015</a>
                     <a id="filter2014" class="filterlink">2014</a>
@@ -79,15 +80,7 @@
                     <a id="filter2012" class="filterlink">2012</a>
                     <a id="filter2011" class="filterlink">2011</a>
                     <a id="filter2010" class="filterlink">2010</a>
-                    <a id="filter2000" class="filterlink">2000s</a>
-                    <a id="filter1990" class="filterlink">1990s</a>
-                    <a id="filter1980" class="filterlink">1980s</a>
-                    <a id="filter1970" class="filterlink">1970s</a>
-                    <a id="filter1960" class="filterlink">1960s</a>
-                    <a id="filter1950" class="filterlink">1950s</a>
-                    <a id="filter1940" class="filterlink">1940s</a>
-                    <a id="filter1930" class="filterlink">1930s</a>
-                    <a id="filter1920" class="filterlink">1920s</a>                                         
+                    <a id="filter2000" class="filterlink">2000s</a>                                        
                     <div id="time_chart" class="viz_chart">
                         Current filter: <span class='filter' style='display: none;'></span> 
                     </div>

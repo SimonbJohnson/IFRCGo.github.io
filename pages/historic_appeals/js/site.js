@@ -86,10 +86,22 @@ function generateDash(data,geom){
     };
 
     var disasterTypeDimension = cf.dimension(function(d){return d['#crisis+type']});
-    var disasterTypeGroup = disasterTypeDimension.group();
+    var disasterTypeGroup = disasterTypeDimension.group().reduceSum(function(d){
+        var val = parseInt(d['#meta+value']);
+        if(isNaN(val)){
+            val=0;
+        }
+        return d['#meta+value']
+    });
 
     var regionDimension = cf.dimension(function(d){return d['#region+name']});
-    var regionGroup = regionDimension.group();
+    var regionGroup = regionDimension.group().reduceSum(function(d){
+        var val = parseInt(d['#meta+value']);
+        if(isNaN(val)){
+            val=0;
+        }
+        return d['#meta+value']
+    });
 
     var mapDimension = cf.dimension(function(d){return d['#country+code']});
     var mapGroup = mapDimension.group();
@@ -112,6 +124,8 @@ function generateDash(data,geom){
             return d['#meta+value'];
         }
     });              
+
+
 
     var maxDate = d3.max(data, function(d) {
         return d3.max(d.months);
@@ -161,7 +175,8 @@ function generateDash(data,geom){
         .colorDomain([0, 1])
         .colorAccessor(function (d) {
             return 1;
-        });
+        })
+        .xAxis().ticks(4);
 
     region
         .width($('#region_chart').width())
@@ -173,7 +188,8 @@ function generateDash(data,geom){
         .colorDomain([0, 1])
         .colorAccessor(function (d) {
             return 1;
-        }); 
+        })
+        .xAxis().ticks(4); 
     
     dc.dataCount('#count-info')
             .dimension(cf)
@@ -303,28 +319,32 @@ function generateDash(data,geom){
         filterDates(then,now);
     });
 
+    $('#filter2017').on("click",function(){
+        filterDates(new Date(2016,11,31),new Date(2017,11,31));
+    });
+
     $('#filter2016').on("click",function(){
-        filterDates(new Date(2016,0,1),new Date(2016,11,31));
+        filterDates(new Date(2015,11,31),new Date(2016,11,31));
     });
 
     $('#filter2015').on("click",function(){
-        filterDates(new Date(2015,0,1),new Date(2015,11,31));
+        filterDates(new Date(2014,11,31),new Date(2015,11,31));
     });
 
     $('#filter2014').on("click",function(){
-        filterDates(new Date(2014,0,1),new Date(2014,11,31));
+        filterDates(new Date(2013,11,31),new Date(2014,11,31));
     });
 
     $('#filter2013').on("click",function(){
-        filterDates(new Date(2013,0,1),new Date(2013,11,31));
+        filterDates(new Date(2012,11,31),new Date(2013,11,31));
     });
 
     $('#filter2012').on("click",function(){
-        filterDates(new Date(2012,0,1),new Date(2012,11,31));
+        filterDates(new Date(2011,11,31),new Date(2012,11,31));
     });
 
     $('#filter2011').on("click",function(){
-        filterDates(new Date(2011,0,1),new Date(2011,11,31));
+        filterDates(new Date(2010,11,31),new Date(2011,11,31));
     });
 
     $('#filter2010').on("click",function(){
@@ -447,14 +467,14 @@ function roundMonths(data){
         var endMonth = d['#date+end'].getMonth();
         var endYear = d['#date+end'].getYear();
         d.months = [new Date(d['#date+start'].getFullYear(), d['#date+start'].getMonth(), 1)];
-        while(currentMonth+currentYear*12 < endMonth+endYear*12){
+        /*while(currentMonth+currentYear*12 < endMonth+endYear*12){
             currentMonth++
             if(currentMonth==12){
                 currentMonth = 0;
                 currentYear++;
             }
             d.months.push(new Date(currentYear+1900, currentMonth, 1));
-        }
+        }*/
     });
     return data
 }
